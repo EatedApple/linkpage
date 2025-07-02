@@ -40,12 +40,20 @@
       border: 1px solid #ccc;
       border-radius: 6px;
     }
-    .item {
+    a.item {
+      display: block;
       background-color: white;
       border-radius: 10px;
       padding: 16px;
       margin-bottom: 16px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.1s ease;
+    }
+    a.item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
     }
     .item h2 {
       margin: 0;
@@ -55,12 +63,6 @@
     .item p {
       margin: 8px 0 0;
       color: #666;
-    }
-    .item a {
-      display: inline-block;
-      margin-top: 10px;
-      color: #0077cc;
-      text-decoration: none;
     }
     .no-result {
       text-align: center;
@@ -81,47 +83,59 @@
 
     <input type="text" id="search" placeholder="검색어를 입력하세요..." />
 
-    <div id="item-list"></div>
+    <div id="items">불러오는 중...</div>
+    <div class="no-result" style="display: none;">검색 결과가 없습니다.</div>
   </div>
 
   <script>
-    async function loadItems() {
+    let data = [];
+
+    async function loadData() {
       try {
-        const res = await fetch('item.json');
-        const items = await res.json();
-        renderItems(items);
-
-        document.getElementById("search").addEventListener("input", () => {
-          const keyword = document.getElementById("search").value.toLowerCase();
-          const filtered = items.filter(item =>
-            item.title.toLowerCase().includes(keyword) ||
-            item.desc.toLowerCase().includes(keyword)
-          );
-          renderItems(filtered);
-        });
-
+        const res = await fetch("item.json");
+        data = await res.json();
+        renderItems("");
       } catch (e) {
-        document.getElementById("item-list").innerHTML = "<p class='no-result'>아이템을 불러올 수 없습니다.</p>";
-        console.error("item.json 불러오기 실패:", e);
+        document.getElementById('items').innerHTML = '❌ item.json을 불러올 수 없습니다.';
+        console.error(e);
       }
     }
 
-    function renderItems(items) {
-      const list = document.getElementById("item-list");
-      if (items.length === 0) {
-        list.innerHTML = "<p class='no-result'>검색 결과가 없습니다.</p>";
+    function renderItems(filter) {
+      const container = document.getElementById("items");
+      const noResult = document.querySelector(".no-result");
+      container.innerHTML = "";
+
+      const filtered = data.filter(item =>
+        item.title.toLowerCase().includes(filter.toLowerCase()) ||
+        item.desc.toLowerCase().includes(filter.toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+        noResult.style.display = "block";
         return;
+      } else {
+        noResult.style.display = "none";
       }
-      list.innerHTML = items.map(item => `
-        <div class="item">
+
+      filtered.forEach(item => {
+        const el = document.createElement("a");
+        el.className = "item";
+        el.href = item.link;
+        el.target = "_blank";
+        el.innerHTML = `
           <h2>${item.title}</h2>
           <p>${item.desc}</p>
-          <a href="${item.link}" target="_blank">🔗 링크 열기</a>
-        </div>
-      `).join('');
+        `;
+        container.appendChild(el);
+      });
     }
 
-    loadItems();
+    document.getElementById("search").addEventListener("input", e => {
+      renderItems(e.target.value);
+    });
+
+    loadData();
   </script>
 </body>
 </html>
