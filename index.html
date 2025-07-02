@@ -6,133 +6,143 @@
   <title>item99 추천목록</title>
   <style>
     body {
-      font-family: 'Pretendard', sans-serif;
-      background-color: #f9f9f9;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
       margin: 0;
-      padding: 0;
+      padding: 20px;
+      max-width: 720px;
+      margin: auto;
     }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+
     h1 {
       text-align: center;
-      font-size: 2rem;
-      margin-bottom: 16px;
-      color: #222;
+      margin-bottom: 10px;
     }
-    .social {
-      text-align: center;
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
       margin-bottom: 20px;
     }
-    .social a {
-      margin: 0 8px;
+
+    .social-links a {
       text-decoration: none;
-      color: #0077cc;
-      font-weight: bold;
+      color: #007BFF;
+      font-weight: 500;
     }
+
     #search {
       width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      margin-bottom: 24px;
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      font-size: 16px;
     }
-    a.item {
-      display: block;
-      background-color: white;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    .card-link {
       text-decoration: none;
       color: inherit;
-      transition: transform 0.1s ease;
     }
-    a.item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+
+    .card {
+      position: relative;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .item h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: #333;
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
-    .item p {
-      margin: 8px 0 0;
-      color: #666;
+
+    .title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
     }
-    .no-result {
-      text-align: center;
-      color: #888;
-      margin-top: 40px;
+
+    .desc {
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 40px;
+    }
+
+    .button {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    #list {
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>item99 추천목록</h1>
+  <h1>📦 item99 추천 모음</h1>
 
-    <div class="social">
-      <a href="https://www.youtube.com/channel/UC94mOz-J3NAL9tEGu1YB5BA" target="_blank">YouTube</a>
-      <a href="https://www.tiktok.com/@hyunta_item" target="_blank">TikTok</a>
-      <a href="https://www.instagram.com/hyunta_item/" target="_blank">Instagram</a>
-    </div>
-
-    <input type="text" id="search" placeholder="검색어를 입력하세요..." />
-
-    <div id="items">불러오는 중...</div>
-    <div class="no-result" style="display: none;">검색 결과가 없습니다.</div>
+  <div class="social-links">
+    <a href="https://www.youtube.com/channel/UC94mOz-J3NAL9tEGu1YB5BA" target="_blank">YouTube</a>
+    <a href="https://www.tiktok.com/@hyunta_item" target="_blank">TikTok</a>
+    <a href="https://www.instagram.com/hyunta_item/" target="_blank">Instagram</a>
   </div>
 
+  <input type="text" id="search" placeholder="검색어 입력..." />
+  <div id="list">불러오는 중...</div>
+
   <script>
-    let data = [];
+    const list = document.getElementById('list');
+    const search = document.getElementById('search');
+    let products = [];
 
     async function loadData() {
       try {
-        const res = await fetch("item.json");
-        data = await res.json();
-        renderItems("");
+        const res = await fetch('item.json');
+        products = await res.json();
+        renderList();
       } catch (e) {
-        document.getElementById('items').innerHTML = '❌ item.json을 불러올 수 없습니다.';
-        console.error(e);
+        list.innerHTML = '❌ 상품 데이터를 불러올 수 없습니다.';
       }
     }
 
-    function renderItems(filter) {
-      const container = document.getElementById("items");
-      const noResult = document.querySelector(".no-result");
-      container.innerHTML = "";
-
-      const filtered = data.filter(item =>
-        item.title.toLowerCase().includes(filter.toLowerCase()) ||
-        item.desc.toLowerCase().includes(filter.toLowerCase())
+    function renderList(filter = "") {
+      list.innerHTML = "";
+      const filtered = products.filter(p =>
+        p.title.toLowerCase().includes(filter.toLowerCase()) ||
+        p.desc.toLowerCase().includes(filter.toLowerCase())
       );
 
-      if (filtered.length === 0) {
-        noResult.style.display = "block";
-        return;
-      } else {
-        noResult.style.display = "none";
-      }
-
-      filtered.forEach(item => {
-        const el = document.createElement("a");
-        el.className = "item";
-        el.href = item.link;
-        el.target = "_blank";
-        el.innerHTML = `
-          <h2>${item.title}</h2>
-          <p>${item.desc}</p>
+      filtered.forEach(p => {
+        const card = document.createElement("a");
+        card.className = "card-link";
+        card.href = p.link;
+        card.target = "_blank";
+        card.innerHTML = `
+          <div class="card">
+            <div class="title">${p.title}</div>
+            <div class="desc">${p.desc}</div>
+            <div class="button">🔗 바로가기</div>
+          </div>
         `;
-        container.appendChild(el);
+        list.appendChild(card);
       });
     }
 
-    document.getElementById("search").addEventListener("input", e => {
-      renderItems(e.target.value);
+    search.addEventListener('input', e => {
+      renderList(e.target.value);
     });
 
     loadData();
