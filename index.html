@@ -3,87 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>item99 - 추천 상품 모음</title>
+  <title>item99 상품 모음</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f9f9f9;
-      padding: 30px;
-      max-width: 720px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    #search {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
-      border-radius: 8px;
-    }
-    .item {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 15px;
-      transition: 0.2s;
-    }
-    .item:hover {
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .item-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-    .item-desc {
-      color: #555;
-      margin-bottom: 10px;
-    }
-    .item a {
-      display: inline-block;
-      padding: 8px 14px;
-      background: #0077ff;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 6px;
-      font-size: 14px;
-    }
+    body { font-family: sans-serif; padding: 30px; background: #f7f7f7; max-width: 720px; margin: auto; }
+    h1 { text-align: center; }
+    #search { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #ccc; }
+    .item { background: #fff; padding: 16px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; }
+    .item-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+    .item-desc { color: #555; margin-bottom: 8px; }
+    .item a { background: #0077ff; color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; display: inline-block; }
   </style>
 </head>
 <body>
-
-  <h1>📦 item99 추천 상품 모음</h1>
-  <input type="text" id="search" placeholder="상품명 또는 설명 검색..." />
-
-  <div id="list"></div>
+  <h1>📦 item99 추천 모음</h1>
+  <input type="text" id="search" placeholder="검색어 입력..." />
+  <div id="list">불러오는 중...</div>
 
   <script>
-    const products = [
-      {
-        title: "여름용 쿨링 원피스",
-        desc: "통기성 좋은 소재, 데일리룩 추천",
-        link: "https://link.coupang.com/a/abc123"
-      },
-      {
-        title: "초경량 블루투스 이어폰",
-        desc: "운동할 때 필수템, 배터리 20시간",
-        link: "https://link.coupang.com/a/def456"
-      },
-      {
-        title: "게이밍 무선마우스",
-        desc: "반응속도 빠르고 손목 피로도 낮음",
-        link: "https://link.coupang.com/a/ghi789"
-      },
-      // 여기에 계속 추가 가능
-    ];
-
     const list = document.getElementById('list');
     const search = document.getElementById('search');
+    let products = [];
+
+    async function loadData() {
+      try {
+        const res = await fetch('item.json');
+        products = await res.json();
+        renderList();
+      } catch (e) {
+        list.innerHTML = '❌ 상품 데이터를 불러올 수 없습니다.';
+      }
+    }
 
     function renderList(filter = "") {
       list.innerHTML = "";
@@ -93,23 +42,22 @@
       );
 
       filtered.forEach(p => {
-        const item = document.createElement("div");
-        item.className = "item";
-        item.innerHTML = `
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
           <div class="item-title">${p.title}</div>
           <div class="item-desc">${p.desc}</div>
-          <a href="${p.link}" target="_blank">구매하러가기</a>
+          <a href="${p.link}" target="_blank">바로가기</a>
         `;
-        list.appendChild(item);
+        list.appendChild(div);
       });
     }
 
-    search.addEventListener("input", e => {
+    search.addEventListener('input', e => {
       renderList(e.target.value);
     });
 
-    renderList(); // 초기 로딩
+    loadData();
   </script>
-
 </body>
 </html>
