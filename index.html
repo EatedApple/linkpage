@@ -1,102 +1,65 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>item99 추천 모음</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>item99 상품 모음</title>
   <style>
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: #f9f9f9;
-      color: #333;
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 30px;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 28px;
-      margin-bottom: 25px;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      margin-bottom: 15px;
-      background: #fff;
-      padding: 12px 16px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .title {
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    .link {
-      color: #0077cc;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 14px;
-      color: #555;
-    }
-
-    footer a {
-      margin: 0 10px;
-      color: #888;
-      text-decoration: none;
-    }
+    body { font-family: sans-serif; padding: 30px; background: #f7f7f7; max-width: 720px; margin: auto; }
+    h1 { text-align: center; }
+    #search { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #ccc; }
+    .item { background: #fff; padding: 16px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; }
+    .item-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+    .item-desc { color: #555; margin-bottom: 8px; }
+    .item a { background: #0077ff; color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; display: inline-block; }
   </style>
+  <!-- Umami Tracking Script -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="53f2bb5d-d28d-486b-964d-83e6d7b20e83"></script>
 </head>
 <body>
-
   <h1>📦 item99 추천 모음</h1>
-
-  <ul id="item-list"></ul>
-
-  <footer>
-    <a href="https://www.youtube.com/channel/UC94mOz-J3NAL9tEGu1YB5BA" target="_blank">YouTube</a>
-    <a href="https://www.tiktok.com/@hyunta_item" target="_blank">TikTok</a>
-    <a href="https://www.instagram.com/hyunta_item/" target="_blank">Instagram</a>
-  </footer>
+  <input type="text" id="search" placeholder="검색어 입력..." />
+  <div id="list">불러오는 중...</div>
 
   <script>
-    async function loadItems() {
+    const list = document.getElementById('list');
+    const search = document.getElementById('search');
+    let products = [];
+
+    async function loadData() {
       try {
-        const res = await fetch('./item.json');
-        const items = await res.json();
-
-        const list = document.getElementById("item-list");
-        list.innerHTML = '';
-
-        items.forEach(item => {
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <span class="title">${item.title}</span>
-            <a class="link" href="${item.link}" target="_blank">바로가기</a>
-          `;
-          list.appendChild(li);
-        });
+        const res = await fetch('item.json');
+        products = await res.json();
+        renderList();
       } catch (e) {
-        const list = document.getElementById("item-list");
-        list.innerHTML = '<li>❌ 아이템을 불러올 수 없습니다.</li>';
+        list.innerHTML = '❌ 상품 데이터를 불러올 수 없습니다.';
       }
     }
 
-    loadItems();
-  </script>
+    function renderList(filter = "") {
+      list.innerHTML = "";
+      const filtered = products.filter(p =>
+        p.title.toLowerCase().includes(filter.toLowerCase()) ||
+        p.desc.toLowerCase().includes(filter.toLowerCase())
+      );
 
+      filtered.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div class="item-title">${p.title}</div>
+          <div class="item-desc">${p.desc}</div>
+          <a href="${p.link}" target="_blank">바로가기</a>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    search.addEventListener('input', e => {
+      renderList(e.target.value);
+    });
+
+    loadData();
+  </script>
 </body>
 </html>
