@@ -2,138 +2,119 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>item99 추천 리스트</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>item99 추천목록</title>
   <style>
     body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: linear-gradient(to bottom, #f0f2f5, #ffffff);
+      font-family: 'Pretendard', sans-serif;
+      background: #f5f5f5;
       margin: 0;
-      padding: 40px 20px;
-      max-width: 720px;
-      margin: auto;
-      color: #333;
+      padding: 0;
     }
-
+    .container {
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .social {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+    .social a {
+      margin: 0 10px;
+      text-decoration: none;
+      color: #0066cc;
+    }
     h1 {
       text-align: center;
-      margin-bottom: 30px;
-      font-size: 26px;
       color: #222;
-    }
-
-    #search {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-    }
-
-    .item {
-      background: white;
-      border-radius: 14px;
-      padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-      transition: transform 0.2s ease;
+      font-size: 1.8rem;
     }
-
-    .item:hover {
-      transform: translateY(-2px);
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
     }
-
-    .item-title {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 10px;
+    ul {
+      list-style: none;
+      padding: 0;
     }
-
-    .item-desc {
-      color: #555;
-      font-size: 15px;
-      margin-bottom: 16px;
+    li {
+      background: white;
+      margin-bottom: 12px;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      transition: all 0.2s ease;
     }
-
-    .item a {
-      display: inline-block;
-      background: #0078ff;
-      color: white;
-      padding: 10px 16px;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: background 0.2s;
+    li:hover {
+      transform: scale(1.01);
+      background: #fdfdfd;
     }
-
-    .item a:hover {
-      background: #005fcc;
+    .name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #111;
     }
-
-    footer {
-      text-align: center;
-      font-size: 13px;
-      color: #888;
-      margin-top: 40px;
+    .url {
+      font-size: 0.9rem;
+      color: #0066cc;
+      word-break: break-word;
     }
   </style>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="53f2bb5d-d28d-486b-964d-83e6d7b20e83"></script>
 </head>
 <body>
-  <h1>📦 item99 추천 모음</h1>
-  <input type="text" id="search" placeholder="궁금한 제품명 또는 키워드를 입력하세요..." />
-  <div id="list">불러오는 중...</div>
+  <div class="container">
+     <h1>item99 추천목록</h1>
+    <!-- 🔼 SNS 링크를 가장 위로 올림 -->
+    <div class="social">
+      <a href="https://www.youtube.com/channel/UC94mOz-J3NAL9tEGu1YB5BA" target="_blank">YouTube</a> |
+      <a href="https://www.tiktok.com/@hyunta_item" target="_blank">TikTok</a> |
+      <a href="https://www.instagram.com/hyunta_item/" target="_blank">Instagram</a>
+    </div>
+    
+    <input type="text" id="searchInput" placeholder="추천 항목 검색..." />
 
-  <footer>
-    🔗 <a href="https://www.youtube.com/channel/UC94mOz-J3NAL9tEGu1YB5BA" target="_blank">YouTube</a> |
-    <a href="https://www.tiktok.com/@hyunta_item" target="_blank">TikTok</a> |
-    <a href="https://www.instagram.com/hyunta_item/" target="_blank">Instagram</a>
-  </footer>
+    <ul id="itemList"></ul>
+  </div>
 
   <script>
-    const list = document.getElementById('list');
-    const search = document.getElementById('search');
-    let products = [];
+    const listEl = document.getElementById("itemList");
+    const searchInput = document.getElementById("searchInput");
 
-    async function loadData() {
+    let items = [];
+
+    async function loadItems() {
       try {
-        const res = await fetch('item.json');
-        products = await res.json();
-        renderList();
-      } catch {
-        list.innerHTML = '❌ 상품 데이터를 불러올 수 없습니다.';
+        const res = await fetch("./items.json");
+        items = await res.json();
+        renderList(items);
+      } catch (e) {
+        listEl.innerHTML = "<li>items.json 로딩 실패</li>";
       }
     }
 
-    function renderList(filter = "") {
-      list.innerHTML = "";
-      const filtered = products.filter(p =>
-        p.title.toLowerCase().includes(filter.toLowerCase()) ||
-        p.desc.toLowerCase().includes(filter.toLowerCase())
-      );
-
-      if (filtered.length === 0) {
-        list.innerHTML = '<div>🔍 해당 조건에 맞는 상품이 없습니다.</div>';
-        return;
-      }
-
-      filtered.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'item';
-        div.innerHTML = `
-          <div class="item-title">${p.title}</div>
-          <div class="item-desc">${p.desc}</div>
-          <a href="${p.link}" target="_blank">상품 보러가기</a>
-        `;
-        list.appendChild(div);
-      });
+    function renderList(filtered) {
+      listEl.innerHTML = filtered.map(item => `
+        <li>
+          <div class="name">${item.name}</div>
+          <div class="url"><a href="${item.url}" target="_blank">${item.url}</a></div>
+        </li>
+      `).join("");
     }
 
-    search.addEventListener('input', e => renderList(e.target.value));
-    loadData();
+    searchInput.addEventListener("input", () => {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const filtered = items.filter(i => i.name.toLowerCase().includes(keyword));
+      renderList(filtered);
+    });
+
+    loadItems();
   </script>
 </body>
 </html>
