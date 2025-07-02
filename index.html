@@ -16,13 +16,6 @@
     h1 {
       text-align: center;
       font-size: 28px;
-      margin-bottom: 10px;
-    }
-
-    #counter {
-      text-align: center;
-      font-size: 14px;
-      color: #666;
       margin-bottom: 25px;
     }
 
@@ -70,7 +63,6 @@
 <body>
 
   <h1>📦 item99 추천 모음</h1>
-  <div id="counter">📊 방문자 수 로딩 중...</div>
 
   <ul id="item-list"></ul>
 
@@ -81,28 +73,6 @@
   </footer>
 
   <script>
-    const token = "ut_BLpapCeyKXAST5XGWmnVAbQ316dnklYUuiXYGb0c";
-    const workspace = "item99";
-    const counterName = "visits";
-
-    async function countUp() {
-      try {
-        await fetch(`https://api.counterapi.dev/v2/${workspace}/${counterName}/up`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-
-        const res = await fetch(`https://api.counterapi.dev/v2/${workspace}/${counterName}`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-        const data = await res.json();
-
-        const count = data.data.up_count || 0;
-        document.getElementById("counter").innerText = `📊 누적 방문자 수: ${count.toLocaleString()}명`;
-      } catch (e) {
-        document.getElementById("counter").innerText = '📊 방문자 수를 불러올 수 없습니다.';
-      }
-    }
-
     async function loadItems() {
       try {
         const res = await fetch('./item.json');
@@ -125,7 +95,6 @@
       }
     }
 
-    countUp();
     loadItems();
   </script>
 
