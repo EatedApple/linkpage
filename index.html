@@ -2,24 +2,96 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>item99 상품 모음</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>item99 추천 리스트</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; padding: 30px; background: #f7f7f7; max-width: 720px; margin: auto; }
-    h1 { text-align: center; }
-    #search { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #ccc; }
-    .item { background: #fff; padding: 16px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; }
-    .item-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
-    .item-desc { color: #555; margin-bottom: 8px; }
-    .item a { background: #0077ff; color: white; text-decoration: none; padding: 8px 14px; border-radius: 6px; display: inline-block; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(to bottom, #f0f2f5, #ffffff);
+      margin: 0;
+      padding: 40px 20px;
+      max-width: 720px;
+      margin: auto;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 26px;
+      color: #222;
+    }
+
+    #search {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+
+    .item {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease;
+    }
+
+    .item:hover {
+      transform: translateY(-2px);
+    }
+
+    .item-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .item-desc {
+      color: #555;
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    .item a {
+      display: inline-block;
+      background: #0078ff;
+      color: white;
+      padding: 10px 16px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .item a:hover {
+      background: #005fcc;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-top: 40px;
+    }
   </style>
-  <!-- Umami Tracking Script -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="53f2bb5d-d28d-486b-964d-83e6d7b20e83"></script>
 </head>
 <body>
   <h1>📦 item99 추천 모음</h1>
-  <input type="text" id="search" placeholder="검색어 입력..." />
+  <input type="text" id="search" placeholder="궁금한 제품명 또는 키워드를 입력하세요..." />
   <div id="list">불러오는 중...</div>
+
+  <footer>
+    🔗 <a href="https://www.youtube.com/channel/UC94mOz-J3NAL9tEGu1YB5BA" target="_blank">YouTube</a> |
+    <a href="https://www.tiktok.com/@hyunta_item" target="_blank">TikTok</a> |
+    <a href="https://www.instagram.com/hyunta_item/" target="_blank">Instagram</a>
+  </footer>
 
   <script>
     const list = document.getElementById('list');
@@ -31,7 +103,7 @@
         const res = await fetch('item.json');
         products = await res.json();
         renderList();
-      } catch (e) {
+      } catch {
         list.innerHTML = '❌ 상품 데이터를 불러올 수 없습니다.';
       }
     }
@@ -43,22 +115,24 @@
         p.desc.toLowerCase().includes(filter.toLowerCase())
       );
 
+      if (filtered.length === 0) {
+        list.innerHTML = '<div>🔍 해당 조건에 맞는 상품이 없습니다.</div>';
+        return;
+      }
+
       filtered.forEach(p => {
         const div = document.createElement('div');
         div.className = 'item';
         div.innerHTML = `
           <div class="item-title">${p.title}</div>
           <div class="item-desc">${p.desc}</div>
-          <a href="${p.link}" target="_blank">바로가기</a>
+          <a href="${p.link}" target="_blank">상품 보러가기</a>
         `;
         list.appendChild(div);
       });
     }
 
-    search.addEventListener('input', e => {
-      renderList(e.target.value);
-    });
-
+    search.addEventListener('input', e => renderList(e.target.value));
     loadData();
   </script>
 </body>
