@@ -7,112 +7,119 @@
   <style>
     body {
       font-family: 'Pretendard', sans-serif;
-      background: #f5f5f5;
+      background-color: #f9f9f9;
       margin: 0;
       padding: 0;
     }
     .container {
-      max-width: 720px;
+      max-width: 800px;
       margin: 40px auto;
       padding: 0 20px;
     }
-    .social {
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-    .social a {
-      margin: 0 10px;
-      text-decoration: none;
-      color: #0066cc;
-    }
     h1 {
       text-align: center;
+      font-size: 2rem;
+      margin-bottom: 16px;
       color: #222;
-      margin-bottom: 20px;
-      font-size: 1.8rem;
     }
-    input[type="text"] {
+    .social {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .social a {
+      margin: 0 8px;
+      text-decoration: none;
+      color: #0077cc;
+      font-weight: bold;
+    }
+    #search {
       width: 100%;
-      padding: 12px 16px;
-      margin-bottom: 20px;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 24px;
       border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .item {
+      background-color: white;
       border-radius: 10px;
-      font-size: 1rem;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      background: white;
-      margin-bottom: 12px;
       padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-      transition: all 0.2s ease;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    li:hover {
-      transform: scale(1.01);
-      background: #fdfdfd;
+    .item h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #333;
     }
-    .name {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: #111;
+    .item p {
+      margin: 8px 0 0;
+      color: #666;
     }
-    .url {
-      font-size: 0.9rem;
-      color: #0066cc;
-      word-break: break-word;
+    .item a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #0077cc;
+      text-decoration: none;
+    }
+    .no-result {
+      text-align: center;
+      color: #888;
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-     <h1>item99 추천목록</h1>
-    <!-- 🔼 SNS 링크를 가장 위로 올림 -->
+    <h1>item99 추천목록</h1>
+
     <div class="social">
-      <a href="https://www.youtube.com/channel/UC94mOz-J3NAL9tEGu1YB5BA" target="_blank">YouTube</a> |
-      <a href="https://www.tiktok.com/@hyunta_item" target="_blank">TikTok</a> |
+      <a href="https://www.youtube.com/channel/UC94mOz-J3NAL9tEGu1YB5BA" target="_blank">YouTube</a>
+      <a href="https://www.tiktok.com/@hyunta_item" target="_blank">TikTok</a>
       <a href="https://www.instagram.com/hyunta_item/" target="_blank">Instagram</a>
     </div>
-    
-    <input type="text" id="searchInput" placeholder="추천 항목 검색..." />
 
-    <ul id="itemList"></ul>
+    <input type="text" id="search" placeholder="검색어를 입력하세요..." />
+
+    <div id="item-list"></div>
   </div>
 
   <script>
-    const listEl = document.getElementById("itemList");
-    const searchInput = document.getElementById("searchInput");
-
-    let items = [];
-
     async function loadItems() {
       try {
-        const res = await fetch("./items.json");
-        items = await res.json();
-        renderList(items);
+        const res = await fetch('item.json');
+        const items = await res.json();
+        renderItems(items);
+
+        document.getElementById("search").addEventListener("input", () => {
+          const keyword = document.getElementById("search").value.toLowerCase();
+          const filtered = items.filter(item =>
+            item.title.toLowerCase().includes(keyword) ||
+            item.desc.toLowerCase().includes(keyword)
+          );
+          renderItems(filtered);
+        });
+
       } catch (e) {
-        listEl.innerHTML = "<li>items.json 로딩 실패</li>";
+        document.getElementById("item-list").innerHTML = "<p class='no-result'>아이템을 불러올 수 없습니다.</p>";
+        console.error("item.json 불러오기 실패:", e);
       }
     }
 
-    function renderList(filtered) {
-      listEl.innerHTML = filtered.map(item => `
-        <li>
-          <div class="name">${item.name}</div>
-          <div class="url"><a href="${item.url}" target="_blank">${item.url}</a></div>
-        </li>
-      `).join("");
+    function renderItems(items) {
+      const list = document.getElementById("item-list");
+      if (items.length === 0) {
+        list.innerHTML = "<p class='no-result'>검색 결과가 없습니다.</p>";
+        return;
+      }
+      list.innerHTML = items.map(item => `
+        <div class="item">
+          <h2>${item.title}</h2>
+          <p>${item.desc}</p>
+          <a href="${item.link}" target="_blank">🔗 링크 열기</a>
+        </div>
+      `).join('');
     }
-
-    searchInput.addEventListener("input", () => {
-      const keyword = searchInput.value.trim().toLowerCase();
-      const filtered = items.filter(i => i.name.toLowerCase().includes(keyword));
-      renderList(filtered);
-    });
 
     loadItems();
   </script>
