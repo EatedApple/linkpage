@@ -148,13 +148,6 @@ async function loadData() {
         card.target = "_blank";
         card.innerHTML = `
           <div class="card">
-           <div style="display: flex; gap: 15px;">
-            ${
-              hasImage
-                ? `<img src="${p.image}" alt="${p.title}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />`
-                : ""
-            }
-            <div style="flex: 1;">
             <div class="title">${p.title}</div>
             <div class="desc">${p.desc}</div>
             <div class="button">🔗 바로가기</div>
