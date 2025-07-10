@@ -130,6 +130,7 @@ async function loadData() {
     products = await res.json();
     renderList();
   } catch (e) {
+    console.log("🚨 상품 데이터 로딩 에러:", e);
     list.innerHTML = '❌ 상품 데이터를 불러올 수 없습니다.';
   }
 }
